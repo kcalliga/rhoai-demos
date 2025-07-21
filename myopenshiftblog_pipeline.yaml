@@ -1,0 +1,165 @@
+# PIPELINE DEFINITION
+# Name: untitled1
+components:
+  comp-run-a-file:
+    executorLabel: exec-run-a-file
+  comp-run-a-file-2:
+    executorLabel: exec-run-a-file-2
+deploymentSpec:
+  executors:
+    exec-run-a-file:
+      container:
+        args:
+        - 'sh -c "mkdir -p ./jupyter-work-dir && cd ./jupyter-work-dir"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
+          file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py''
+          --output bootstrapper.py)"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
+          ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt''
+          --output requirements-elyra.txt)"
+
+          sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
+          && python3 bootstrapper.py --pipeline-name ''untitled1'' --cos-endpoint
+          ''https://s3.openshift-storage.svc:443'' --cos-bucket ''pipeline-75424b26-5b46-4696-97bd-df2e75af8e01''
+          --cos-directory ''untitled1-0721194240'' --cos-dependencies-archive ''1_load_event_data-c94ae9cc-f28d-4311-a570-93988d436243.tar.gz''
+          --file ''rhoai-demos/1_load_event_data.ipynb'' "
+
+          '
+        command:
+        - sh
+        - -c
+        env:
+        - name: ELYRA_RUNTIME_ENV
+          value: kfp
+        - name: ELYRA_ENABLE_PIPELINE_INFO
+          value: 'True'
+        - name: ELYRA_WRITABLE_CONTAINER_DIR
+          value: /tmp
+        - name: ELYRA_RUN_NAME
+          value: '{{workflow.uid}}'
+        image: quay.io/modh/odh-pipeline-runtime-datascience-cpu-py311-ubi9@sha256:58b260c5828299014802bf3fcd0004a97a949fdbfcee82057190e94a2ef16562
+    exec-run-a-file-2:
+      container:
+        args:
+        - 'sh -c "mkdir -p ./jupyter-work-dir && cd ./jupyter-work-dir"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/bootstrapper.py'' ]] && (echo ''bootstrapper.py
+          file already exists''; cp ''/opt/app-root/bin/utils/bootstrapper.py'' .)
+          || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/elyra/kfp/bootstrapper.py''
+          --output bootstrapper.py)"
+
+          sh -c "[[ -e ''/opt/app-root/bin/utils/requirements-elyra.txt'' ]] && (echo
+          ''requirements-elyra.txt file already exists''; cp ''/opt/app-root/bin/utils/requirements-elyra.txt''
+          .) || (echo ''Downloading https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt'';
+          curl --fail -H ''Cache-Control: no-cache'' -L ''https://raw.githubusercontent.com/opendatahub-io/elyra/v4.2.1/etc/generic/requirements-elyra.txt''
+          --output requirements-elyra.txt)"
+
+          sh -c "python3 -m pip install  packaging && python3 -m pip freeze > requirements-current.txt
+          && python3 bootstrapper.py --pipeline-name ''untitled1'' --cos-endpoint
+          ''https://s3.openshift-storage.svc:443'' --cos-bucket ''pipeline-75424b26-5b46-4696-97bd-df2e75af8e01''
+          --cos-directory ''untitled1-0721194240'' --cos-dependencies-archive ''2_rest_of_steps-19404316-2412-4dde-994e-8c8595b2bf0b.tar.gz''
+          --file ''rhoai-demos/2_rest_of_steps.ipynb'' "
+
+          '
+        command:
+        - sh
+        - -c
+        env:
+        - name: ELYRA_RUNTIME_ENV
+          value: kfp
+        - name: ELYRA_ENABLE_PIPELINE_INFO
+          value: 'True'
+        - name: ELYRA_WRITABLE_CONTAINER_DIR
+          value: /tmp
+        - name: ELYRA_RUN_NAME
+          value: '{{workflow.uid}}'
+        image: quay.io/modh/odh-pipeline-runtime-datascience-cpu-py311-ubi9@sha256:58b260c5828299014802bf3fcd0004a97a949fdbfcee82057190e94a2ef16562
+pipelineInfo:
+  name: untitled1
+root:
+  dag:
+    tasks:
+      run-a-file:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-a-file
+        taskInfo:
+          name: 1_load_event_data
+      run-a-file-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-a-file-2
+        dependentTasks:
+        - run-a-file
+        taskInfo:
+          name: 2_rest_of_steps
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.12.2
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-run-a-file:
+          podMetadata:
+            annotations:
+              elyra/node-file-name: rhoai-demos/1_load_event_data.ipynb
+              elyra/pipeline-source: untitled1.pipeline
+            labels:
+              elyra/experiment-name: ''
+              elyra/node-name: 1_load_event_data
+              elyra/node-type: notebook-script
+              elyra/pipeline-name: untitled1
+              elyra/pipeline-version: ''
+          pvcMount:
+          - constant: event-frequency-analysis-storage
+            mountPath: /data
+            pvcNameParameter:
+              runtimeValue:
+                constant: event-frequency-analysis-storage
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            secretName: dashboard-dspa-secret
+            secretNameParameter:
+              runtimeValue:
+                constant: dashboard-dspa-secret
+        exec-run-a-file-2:
+          podMetadata:
+            annotations:
+              elyra/node-file-name: rhoai-demos/2_rest_of_steps.ipynb
+              elyra/pipeline-source: untitled1.pipeline
+            labels:
+              elyra/experiment-name: ''
+              elyra/node-name: 2_rest_of_steps
+              elyra/node-type: notebook-script
+              elyra/pipeline-name: untitled1
+              elyra/pipeline-version: ''
+          pvcMount:
+          - constant: event-frequency-analysis-storage
+            mountPath: /data
+            pvcNameParameter:
+              runtimeValue:
+                constant: event-frequency-analysis-storage
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            secretName: dashboard-dspa-secret
+            secretNameParameter:
+              runtimeValue:
+                constant: dashboard-dspa-secret
