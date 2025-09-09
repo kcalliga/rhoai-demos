@@ -1,0 +1,6 @@
+ts,source,namespace,pod,node,level,verb,code,route,msg,container_restart,rollout_in_window
+2025-09-08 14:01:00+00:00,app,shop,cart-7d9b,worker-02,info,get,200.0,/checkout,OK,0,0.0
+2025-09-08 14:02:00+00:00,audit,shop,,,info,create,201.0,/apis/apps/v1/namespaces/shop/deployments,deployment created,0,1.0
+2025-09-08 14:03:00+00:00,app,shop,cart-7d9b,worker-02,error,post,500.0,/checkout,NullPointerException,0,1.0
+2025-09-08 14:04:00+00:00,app,shop,cart-7d9b,worker-02,error,get,503.0,/checkout,Connection refused,1,1.0
+2025-09-08 14:05:00+00:00,event,shop,cart-7d9b,worker-02,warn,,,,Pod warning: ImagePullBackOff,0,1.0

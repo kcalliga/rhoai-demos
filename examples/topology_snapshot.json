@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "name": "worker-01"
+    },
+    {
+      "name": "worker-02"
+    }
+  ],
+  "pods": [
+    {
+      "name": "cart-7d9b",
+      "ns": "shop",
+      "node": "worker-02",
+      "owner": {
+        "kind": "Deployment",
+        "name": "cart"
+      }
+    },
+    {
+      "name": "user-5f11",
+      "ns": "shop",
+      "node": "worker-01",
+      "owner": {
+        "kind": "Deployment",
+        "name": "user"
+      }
+    }
+  ],
+  "deployments": [
+    {
+      "name": "cart",
+      "ns": "shop"
+    },
+    {
+      "name": "user",
+      "ns": "shop"
+    }
+  ],
+  "services": [
+    {
+      "name": "cart-svc",
+      "ns": "shop"
+    }
+  ],
+  "endpoints": [
+    {
+      "svc": "cart-svc",
+      "ns": "shop",
+      "pods": [
+        "cart-7d9b"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "name": "cart-route",
+      "ns": "shop",
+      "to_svc": "cart-svc"
+    }
+  ],
+  "replicasets": [],
+  "pvcs": [],
+  "pvs": []
+}

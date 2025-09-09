@@ -1,0 +1,64 @@
+{
+  "episode_id": "1757340000000000000::6d688cf",
+  "start": "2025-09-08T14:00:00+00:00",
+  "end": "2025-09-08T14:10:00+00:00",
+  "entities": {
+    "namespace": [
+      "shop"
+    ],
+    "pod": [
+      "cart-7d9b"
+    ],
+    "node": [
+      "worker-02"
+    ]
+  },
+  "features": {
+    "count": 4.0,
+    "error_ratio": 0.5,
+    "restarts": 1.0,
+    "http5xx": 2.0,
+    "rollout_in_window": 1.0
+  },
+  "candidates": [
+    {
+      "component": "pod/cart-7d9b",
+      "reason": "Error spike following a deployment rollout",
+      "evidence": [
+        "Recent Deployment rollout detected",
+        "HTTP 5xx increased"
+      ],
+      "score": 0.45
+    }
+  ],
+  "exemplars": [
+    {
+      "ts": "2025-09-08T14:01:00+00:00",
+      "source": "app",
+      "pod": "cart-7d9b",
+      "code": 200,
+      "msg": "OK"
+    },
+    {
+      "ts": "2025-09-08T14:03:00+00:00",
+      "source": "app",
+      "pod": "cart-7d9b",
+      "code": 500,
+      "msg": "NullPointerException"
+    },
+    {
+      "ts": "2025-09-08T14:04:00+00:00",
+      "source": "app",
+      "pod": "cart-7d9b",
+      "code": 503,
+      "msg": "Connection refused"
+    },
+    {
+      "ts": "2025-09-08T14:05:00+00:00",
+      "source": "event",
+      "pod": "cart-7d9b",
+      "code": null,
+      "msg": "Pod warning: ImagePullBackOff"
+    }
+  ]
+}
