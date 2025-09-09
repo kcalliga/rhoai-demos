@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata: { name: export-topology, namespace: YOUR_NS }
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: topology-exporter
+          containers:
+          - name: exp
+            image: quay.io/your/image:tag
+            command: ["python","-u","jobs/export_topology.py"]
+            env: [{ name: OUT, value: "/data/topology_snapshot.json" }]
+            volumeMounts:
+            - { name: data, mountPath: /data }
+          restartPolicy: OnFailure
+          volumes:
+          - name: data
+            persistentVolumeClaim: { claimName: my-data-pvc }
