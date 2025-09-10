@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: loki-exporter
+  namespace: YOUR_NS
+---
+# Example-only: bind to your cluster/logging reader role (adjust to your environment)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: loki-exporter-logs-read
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: LOGS_READER_ROLE_NAME   # <-- replace with the reader role in your cluster
+subjects:
+- kind: ServiceAccount
+  name: loki-exporter
+  namespace: YOUR_NS
