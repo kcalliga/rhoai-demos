@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: export-loki-logs
+  namespace: YOUR_NS
+spec:
+  schedule: "*/10 * * * *"   # every 10 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: loki-exporter
+          restartPolicy: OnFailure
+          containers:
+          - name: exporter
+            image: quay.io/your-image:tag  # contains python + jobs/export_logs.py + deps
+            command: ["python","-u","jobs/export_logs.py"]
+            env:
+              - name: LOKI_URL
+                value: "https://loki-gateway.YOUR_DOMAIN"   # your Loki endpoint
+              - name: OUT
+                value: "/data/unified_logs/latest.parquet"
+              - name: LOKI_TOKEN_FILE
+                value: "/var/run/secrets/tokens/loki-token"
+              # Optional: if Loki uses a custom CA
+              # - name: REQUESTS_CA_BUNDLE
+              #   value: "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
+              # Optional: if using basic auth instead of SA token
+              # - name: LOKI_BASIC_AUTH
+              #   valueFrom: { secretKeyRef: { name: loki-basic, key: auth } }
+            volumeMounts:
+              - name: data
+                mountPath: /data
+              - name: sa-token
+                mountPath: /var/run/secrets/tokens
+                readOnly: true
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: my-data-pvc   # <-- create a PVC and put its name here
+            - name: sa-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      path: loki-token
+                      audience: loki        # set to what your gateway expects (can be any string if not validated)
+                      expirationSeconds: 3600
